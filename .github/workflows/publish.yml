@@ -19,7 +19,7 @@ jobs:
       - name: Authenticate with GitHub Packages
         run: |
           dotnet nuget add source \
-            --username USERNAME \
+            --username TheLittlestPinecone \
             --password "${{ secrets.GITHUB_TOKEN }}" \
             --store-password-in-clear-text \
             --name github \
