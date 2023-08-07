@@ -1,0 +1,28 @@
+﻿# Build and publish the .NET project to GitHub Packages
+name: Publish to GitHub Packages
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0
+      - name: Build
+        run: dotnet build --configuration Release
+      - name: Test
+        run: dotnet test
+      - name: Package
+        run: dotnet pack --configuration Release --project src/Pinecone.EventPublisher/Pinecone.EventPublisher.csproj
+      - name: Authenticate with GitHub Packages
+        run: |
+          dotnet nuget add source \
+            --username USERNAME \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text \
+            --name github \
+            "https://nuget.pkg.github.com/TheLittlestPinecone/index.json"
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push src/Pinecone.EventPublisher/bin/Release/*.nupkg --source "github"
