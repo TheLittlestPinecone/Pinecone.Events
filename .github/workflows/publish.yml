@@ -15,7 +15,7 @@ jobs:
       - name: Test
         run: dotnet test
       - name: Package
-        run: dotnet pack --configuration Release --project src/Pinecone.EventPublisher/Pinecone.EventPublisher.csproj
+        run: dotnet pack --configuration Release src/Pinecone.EventPublisher/Pinecone.EventPublisher.csproj
       - name: Authenticate with GitHub Packages
         run: |
           dotnet nuget add source \
