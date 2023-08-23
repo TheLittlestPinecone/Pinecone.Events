@@ -28,9 +28,9 @@ public abstract class SqsEventFunctionHandler
 {
     private readonly ISubscriberRegistry _subscribers;
 
-    protected SqsEventFunctionHandler(ISubscriberRegistry subscribers)
+    protected SqsEventFunctionHandler(IServiceProvider serviceProvider)
     {
-        _subscribers = subscribers;
+        _subscribers = serviceProvider.GetRequiredService<ISubscriberRegistry>();
     }
 
     public Task FunctionHandler(SQSEvent sqsEvent, ILambdaContext context)
