@@ -13,10 +13,13 @@ runs:
   steps:
     - name: Build
       run: dotnet build --configuration Release
+      shell: bash
     - name: Test
       run: dotnet test
+      shell: bash
     - name: Package
       run: dotnet pack --configuration Release src/${{ inputs.package }}/*.csproj
+      shell: bash
     - name: Authenticate with GitHub Packages
       run: |
         dotnet nuget add source \
@@ -25,5 +28,7 @@ runs:
           --store-password-in-clear-text \
           --name github \
           "https://nuget.pkg.github.com/TheLittlestPinecone/index.json"
+      shell: bash
     - name: Publish to GitHub Packages
       run: dotnet nuget push --source github --api-key "${{ inputs.access-token }}" src/${{ inputs.package }}/bin/Release/*.nupkg
+      shell: bash

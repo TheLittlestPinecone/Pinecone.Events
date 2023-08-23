@@ -10,7 +10,8 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0
-      - uses: ./.github/actions/publish-dotnet-package
+      - name: Publish Pinecone.Events
+        uses: ./.github/actions/publish-dotnet-package
         with:
           package: Pinecone.Events
           access-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
