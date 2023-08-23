@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pinecone.EventPublisher\Pinecone.EventPublisher.csproj" />
+    <ProjectReference Include="..\Pinecone.EventSubscriber\Pinecone.EventSubscriber.csproj" />
   </ItemGroup>
 
 </Project>

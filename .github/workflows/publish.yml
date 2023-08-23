@@ -10,19 +10,7 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0
-      - name: Build
-        run: dotnet build --configuration Release
-      - name: Test
-        run: dotnet test
-      - name: Package
-        run: dotnet pack --configuration Release src/Pinecone.EventPublisher/Pinecone.EventPublisher.csproj
-      - name: Authenticate with GitHub Packages
-        run: |
-          dotnet nuget add source \
-            --username tommcdo \
-            --password "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}" \
-            --store-password-in-clear-text \
-            --name github \
-            "https://nuget.pkg.github.com/TheLittlestPinecone/index.json"
-      - name: Publish to GitHub Packages
-        run: dotnet nuget push --source github --api-key "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}" src/Pinecone.EventPublisher/bin/Release/*.nupkg
+      - uses: ./.github/actions/publish
+        with:
+          package: Pinecone.Events
+          access-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}

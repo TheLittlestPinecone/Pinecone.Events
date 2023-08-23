@@ -1,5 +1,6 @@
 using Amazon.SimpleNotificationService;
 using Pinecone.EventPublisher;
+using Pinecone.EventSubscriber;
 using Sample;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSnsEventPublishers(builder.Configuration.GetSection("Sns"))
     .Register<ProductionItemCompleted>("ProductionItemCompleted")
     .Register<ProductCountUpdated>("ProductCountUpdated");
+
+builder.Services.AddSqsEventSubscribers()
+    .UseHandler<ProductionItemCompletedSubscriber>("ProductionItemCompleted")
+    .UseHandler<ProductionCountUpdatedSubscriber>("ProductCountUpdated");
 
 var app = builder.Build();
 

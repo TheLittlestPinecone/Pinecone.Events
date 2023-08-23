@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Pinecone.EventPublisher;
 
 public interface IPublisher<TEvent>
