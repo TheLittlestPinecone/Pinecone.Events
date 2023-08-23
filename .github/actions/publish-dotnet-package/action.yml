@@ -1,0 +1,29 @@
+﻿name: Publish to GitHub Packages
+author: tommcdo
+description: Publishes a package to GitHub Packages
+inputs:
+  package:
+    description: 'The package to publish'
+    required: true
+  access-token:
+    description: 'The GitHub Personal Access Token to use for authentication'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Build
+      run: dotnet build --configuration Release
+    - name: Test
+      run: dotnet test
+    - name: Package
+      run: dotnet pack --configuration Release src/${{ inputs.package }}/*.csproj
+    - name: Authenticate with GitHub Packages
+      run: |
+        dotnet nuget add source \
+          --username tommcdo \
+          --password "${{ inputs.access-token }}" \
+          --store-password-in-clear-text \
+          --name github \
+          "https://nuget.pkg.github.com/TheLittlestPinecone/index.json"
+    - name: Publish to GitHub Packages
+      run: dotnet nuget push --source github --api-key "${{ inputs.access-token }}" src/${{ inputs.package }}/bin/Release/*.nupkg
