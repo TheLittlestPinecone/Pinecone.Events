@@ -15,3 +15,13 @@ jobs:
         with:
           package: Pinecone.Events
           access-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      - name: Publish Pinecone.EventPublisher
+        uses: ./.github/actions/publish-dotnet-package
+        with:
+          package: Pinecone.EventPublisher
+          access-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      - name: Publish Pinecone.EventSubscriber
+        uses: ./.github/actions/publish-dotnet-package
+        with:
+          package: Pinecone.EventSubscriber
+          access-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
