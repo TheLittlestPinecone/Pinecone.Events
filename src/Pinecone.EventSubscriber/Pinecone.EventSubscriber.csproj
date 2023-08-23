@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Verson>0.2.0</Verson>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
