@@ -10,6 +10,14 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0
+      - name: Authenticate with GitHub Packages
+        run: |
+          dotnet nuget add source \
+            --username tommcdo \
+            --password "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}" \
+            --store-password-in-clear-text \
+            --name github \
+            "https://nuget.pkg.github.com/TheLittlestPinecone/index.json"
       - name: Publish Pinecone.Events
         uses: ./.github/actions/publish-dotnet-package
         with:
