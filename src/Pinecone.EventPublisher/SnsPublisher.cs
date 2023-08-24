@@ -7,11 +7,10 @@ using Amazon.SimpleNotificationService.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Pinecone.Events;
 
 namespace Pinecone.EventPublisher;
 
-public class SnsPublisher<TEventData> : IPublisher<TEventData> where TEventData : IEventData
+public class SnsPublisher<TEvent> : IPublisher<TEvent>
 {
     private readonly IAmazonSimpleNotificationService _snsClient;
     private readonly string _topicArn;
@@ -24,14 +23,9 @@ public class SnsPublisher<TEventData> : IPublisher<TEventData> where TEventData 
         _eventType = eventType;
     }
 
-    public async Task PublishAsync(PublisherEvent<TEventData> publisherEvent)
+    public async Task PublishAsync(TEvent @event)
     {
-        MessageAttributeValue attr(string value) => new() { DataType = "String", StringValue = value };
-        var message = JsonSerializer.Serialize(publisherEvent.Data);
-        var messageAttributes = new Dictionary<string, MessageAttributeValue>
-        {
-            { "event_type", attr(_eventType) }
-        };
+        var message = JsonSerializer.Serialize(@event);
         var request = new PublishRequest(_topicArn, message)
         {
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
@@ -39,13 +33,16 @@ public class SnsPublisher<TEventData> : IPublisher<TEventData> where TEventData 
                 { "event_type", new MessageAttributeValue { DataType = "String", StringValue = _eventType } }
             }
         };
-        await _snsClient.PublishAsync(request);
+        Console.WriteLine($"Using event type: {_eventType}");
+        var response = await _snsClient.PublishAsync(request);
+        Console.WriteLine($"Got back status code: {response.HttpStatusCode}");
+        Console.WriteLine($"Published event to SNS: {response.MessageId}");
     }
 }
 
 public interface IPublisherFactory
 {
-    IPublisher<TEventData> Create<TEventData>(string eventType) where TEventData : IEventData;
+    IPublisher<TEvent> Create<TEvent>(string eventType);
 }
 
 public class SnsPublisherFactory : IPublisherFactory
@@ -59,9 +56,9 @@ public class SnsPublisherFactory : IPublisherFactory
         _topicArn = config.Value.TopicArn;
     }
 
-    public IPublisher<TEventData> Create<TEventData>(string eventType) where TEventData : IEventData
+    public IPublisher<TEvent> Create<TEvent>(string eventType)
     {
-        return new SnsPublisher<TEventData>(_snsClient, _topicArn, eventType);
+        return new SnsPublisher<TEvent>(_snsClient, _topicArn, eventType);
     }
 }
 
@@ -79,9 +76,9 @@ public class PublisherBuilder<TPublisherFactory> where TPublisherFactory : IPubl
         _services = services;
     }
 
-    public PublisherBuilder<TPublisherFactory> Register<TEventData>(string eventType) where TEventData : IEventData
+    public PublisherBuilder<TPublisherFactory> Register<TEvent>(string eventType)
     {
-        _services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<TPublisherFactory>().Create<TEventData>(eventType));
+        _services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<TPublisherFactory>().Create<TEvent>(eventType));
         return this;
     }
 }
