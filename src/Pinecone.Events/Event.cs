@@ -1,88 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Pinecone.Events;
 
-public abstract class EventAttribute
+public interface IEventSource
 {
-    public EventAttribute(string name)
-    {
-        Name = name;
-    }
-
-    public string Name { get; } = string.Empty;
-    public abstract Type Type { get; }
+    string System { get; }
+    public ISubscriberEvent? ParentEvent { get; }
 }
 
-public class EventAttribute<TValue> : EventAttribute
+public class EventSource : IEventSource
 {
-    public EventAttribute(string name) : base(name)
-    {
-    }
-
-    public override Type Type => typeof(TValue);
+    public string System { get; init; } = default!;
+    public ISubscriberEvent? ParentEvent { get; init; }
 }
 
-public static class Attributes
+public interface IEvent
 {
-    public static readonly EventAttribute<string> EventType = new("event_type");
+    string Type { get; }
+    DateTime Timestamp { get; }
 }
 
-public class AttributeCollection
+public interface ISubscriberEvent : IEvent
 {
-    private readonly IDictionary<EventAttribute, object> _attributes = new Dictionary<EventAttribute, object>();
-
-    private AttributeCollection(IDictionary<EventAttribute, object> attributes)
-    {
-        _attributes = attributes;
-    }
-
-    public TValue Get<TValue>(EventAttribute<TValue> key)
-    {
-        return (TValue)_attributes[key];
-    }
-
-    public static AttributeCollectionBuilder Builder()
-    {
-        return new();
-    }
-
-    public class AttributeCollectionBuilder
-    {
-        private readonly IDictionary<EventAttribute, object> _attributes = new Dictionary<EventAttribute, object>();
-
-        public AttributeCollectionBuilder With<TValue>(EventAttribute<TValue> key, TValue value)
-        {
-            _attributes[key] = value;
-            return this;
-        }
-
-        public AttributeCollection Build()
-        {
-            return new(_attributes);
-        }
-    }
+    string Id { get; }
 }
 
-public class Event<TEvent>
+public interface IPublisherEvent : IEvent
 {
-    public TEvent EventData { get; set; } = default!;
-    public AttributeCollection Attributes { get; set; } = default!;
+    public ISubscriberEvent? ParentEvent { get; }
 }
 
-public class Sample
+public interface IEventData
 {
-    public void Main()
-    {
-        var attributes = AttributeCollection.Builder()
-            .With(Attributes.EventType, "product_count_updated")
-            .Build();
-        var @event = new Event<(int, int)>
-        {
-            EventData = (1, 3),
-            Attributes = AttributeCollection.Builder()
-                .With(Attributes.EventType, "product_count_updated")
-                .Build()
-        };
-    }
+}
+
+public class SubscriberEvent : ISubscriberEvent
+{
+    public string Id { get; init; } = default!;
+    public string Type { get; init; } = default!;
+    public DateTime Timestamp { get; init; }
+    public IEventSource Source { get; init; } = default!;
+    public string Data { get; init; } = default!;
+}
+
+public class SubscriberEvent<TEventData> : ISubscriberEvent where TEventData : IEventData
+{
+    public string Id { get; init; } = default!;
+    public string Type { get; init; } = default!;
+    public DateTime Timestamp { get; init; }
+    public IEventSource Source { get; init; } = default!;
+    public TEventData Data { get; init; } = default!;
+}
+
+public class PublisherEvent<TEventData> : IPublisherEvent where TEventData : IEventData
+{
+    public string Type { get; set; } = default!;
+    public DateTime Timestamp { get; set; }
+    public ISubscriberEvent? ParentEvent { get; set; }
+    public TEventData Data { get; set; } = default!;
 }
