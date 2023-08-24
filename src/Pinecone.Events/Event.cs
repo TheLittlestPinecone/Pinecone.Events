@@ -53,7 +53,7 @@ public class SubscriberEvent<TEventData> : IParentEvent where TEventData : IEven
 public class PublisherEvent<TEventData> where TEventData : IEventData
 {
     public DateTime? Timestamp { get; set; }
-    public EventSource? Source { get; set; }
-    public ParentEvent? ParentEvent { get; set; }
+    public IEventSource? Source { get; set; }
+    public IParentEvent? ParentEvent { get; set; }
     public TEventData Data { get; set; } = default!;
 }
