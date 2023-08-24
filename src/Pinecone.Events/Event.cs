@@ -4,58 +4,56 @@ namespace Pinecone.Events;
 
 public interface IEventSource
 {
-    string System { get; }
-    public ISubscriberEvent? ParentEvent { get; }
+    string Id { get; }
+    string Name { get; }
 }
 
 public class EventSource : IEventSource
 {
-    public string System { get; init; } = default!;
-    public ISubscriberEvent? ParentEvent { get; init; }
+    public string Id { get; set; } = default!;
+    public string Name { get; set; } = default!;
 }
 
-public interface IEvent
-{
-    string Type { get; }
-    DateTime Timestamp { get; }
-}
-
-public interface ISubscriberEvent : IEvent
+public interface IParentEvent
 {
     string Id { get; }
+    string Type { get; }
 }
 
-public interface IPublisherEvent : IEvent
+public class ParentEvent : IParentEvent
 {
-    public ISubscriberEvent? ParentEvent { get; }
+    public string Id { get; set; } = default!;
+    public string Type { get; set; } = default!;
 }
 
 public interface IEventData
 {
 }
 
-public class SubscriberEvent : ISubscriberEvent
+public class SubscriberEvent : IParentEvent
 {
     public string Id { get; init; } = default!;
     public string Type { get; init; } = default!;
     public DateTime Timestamp { get; init; }
     public IEventSource Source { get; init; } = default!;
+    public IParentEvent? ParentEvent { get; init; }
     public string Data { get; init; } = default!;
 }
 
-public class SubscriberEvent<TEventData> : ISubscriberEvent where TEventData : IEventData
+public class SubscriberEvent<TEventData> : IParentEvent where TEventData : IEventData
 {
     public string Id { get; init; } = default!;
     public string Type { get; init; } = default!;
     public DateTime Timestamp { get; init; }
     public IEventSource Source { get; init; } = default!;
+    public IParentEvent? ParentEvent { get; init; }
     public TEventData Data { get; init; } = default!;
 }
 
-public class PublisherEvent<TEventData> : IPublisherEvent where TEventData : IEventData
+public class PublisherEvent<TEventData> where TEventData : IEventData
 {
-    public string Type { get; set; } = default!;
-    public DateTime Timestamp { get; set; }
-    public ISubscriberEvent? ParentEvent { get; set; }
+    public DateTime? Timestamp { get; set; }
+    public EventSource? Source { get; set; }
+    public ParentEvent? ParentEvent { get; set; }
     public TEventData Data { get; set; } = default!;
 }
